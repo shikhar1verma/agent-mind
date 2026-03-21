@@ -1,0 +1,33 @@
+{
+  "name": "agent-mind",
+  "version": "1.0.0",
+  "description": "Cognitive memory system for LLM agents. Drop-in folder that makes any AI coding tool think better, remember what matters, and improve over time.",
+  "main": "src/index.js",
+  "bin": {
+    "agent-mind": "bin/cli.js"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js",
+    "test:benchmarks": "node tests/benchmarks/run.js"
+  },
+  "keywords": [
+    "ai", "llm", "agent", "memory", "cognitive", "claude", "codex", "gemini", "cursor",
+    "context-management", "agent-memory", "claude-code", "coding-agent"
+  ],
+  "author": "Shikhar Verma <shikhar1verma@gmail.com>",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/shikhar1verma/agent-mind"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "template/",
+    "README.md",
+    "LICENSE"
+  ]
+}

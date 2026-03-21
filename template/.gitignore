@@ -1,0 +1,22 @@
+# Working memory — ephemeral, per-task
+workspace/*
+!workspace/.gitkeep
+
+# Episode details — personal, potentially large
+# (Keep _index.md, ignore raw episode files)
+history/episodes/20*/
+
+# Reflections details — personal
+# (Keep _index.md, ignore raw reflection files)
+history/reflections/20*
+
+# Commit these (shared team knowledge):
+# - BOOT.md, config.md, README.md
+# - protocols/*
+# - knowledge/domains/*/patterns.md
+# - knowledge/domains/*/failures/_index.md
+# - knowledge/stack/*
+# - knowledge/insights.md
+# - history/episodes/_index.md (the index, not the details)
+# - history/reflections/_index.md
+# - adapters/*
