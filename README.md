@@ -3,300 +3,227 @@
 [![npm version](https://img.shields.io/npm/v/agent-mind.svg?style=flat-square)](https://www.npmjs.com/package/agent-mind)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg?style=flat-square)](LICENSE)
 [![Node.js: >=18](https://img.shields.io/badge/Node.js-%3E%3D18-green.svg?style=flat-square)](https://nodejs.org/)
+[![Zero Dependencies](https://img.shields.io/badge/dependencies-0-brightgreen.svg?style=flat-square)](#)
 
-**Cognitive memory system for LLM agents**
+**A cognitive memory system for LLM coding agents.**
 
-Drop a folder into any project. Your AI coding tool gets persistent memory, structured thinking, and learning from experience.
+Agent Mind is a `.agent-mind/` folder you drop into any project. It gives your AI coding tool — Claude Code, Codex, Gemini CLI, Cursor, or anything that reads files — persistent memory, a structured thinking protocol, and the ability to learn from experience across sessions.
 
----
-
-## The Problem
-
-LLM agents lose context between sessions. They make the same mistakes twice. They have no structured way to learn from experience. Every tool—Claude Code, Codex, Gemini, Cursor—has its own config format with no shared memory infrastructure.
-
-## The Solution
-
-Agent Mind is a `.agent-mind/` folder you drop into any project. It gives any LLM agent:
-
-- 🧠 **Persistent memory** that survives across sessions
-- 🔄 **A thinking protocol** — understand → load context → think critically → work → capture
-- 🎯 **Quality-gated learning** from every task (bad memories are worse than no memory)
-- 🚫 **Failure libraries** that prevent known mistakes
-- 🛠️ **Self-maintenance protocols** for memory health
-- 🔗 **Works with Claude Code, Codex, Gemini CLI, Cursor, and any tool that reads files**
-
----
-
-## Quick Start
+Pure markdown. No databases. No embeddings. No external dependencies.
 
 ```bash
 npx agent-mind init
 ```
 
-This creates a `.agent-mind/` folder and runs through interactive setup:
+---
 
-1. **Project name & description** — What are we building?
-2. **Primary LLM tool** — Claude Code, Codex, Gemini, Cursor, or Other
-3. **Knowledge domains** — Auth, API design, performance, etc. (optional)
-4. **Key technologies** — Node.js, React, Postgres, etc. (optional)
+## Why This Exists
 
-The init command also:
-- Auto-detects existing tool configs (`CLAUDE.md`, `AGENTS.md`, `.cursorrules`, etc.)
-- Injects Agent Mind integration snippets
-- Populates the memory structure with skeleton files
+Every LLM coding agent today suffers from the same fundamental problem: **amnesia**.
 
-Then read the entry point:
+Your agent solves a tricky auth bug on Monday. On Wednesday, it hits the same class of bug and starts from scratch. It doesn't remember the patterns it discovered, the approaches that failed, or the architectural decisions you made together. Each session is a blank slate.
 
-```bash
-cat .agent-mind/BOOT.md
-```
+This isn't just inconvenient — it's a compounding loss. Every insight that isn't captured is an insight that can't inform future work. Over weeks and months, the gap between what your agent *could* know and what it *does* know becomes enormous.
+
+Existing solutions don't solve this well. Vector databases like [Mem0](https://github.com/mem0ai/mem0) embed memories as opaque vectors — you can't read, edit, or version-control them. Multi-agent frameworks add orchestration complexity when the real problem is memory, not coordination. And tool-specific configs (CLAUDE.md, AGENTS.md) give you static instructions but no learning loop.
+
+Agent Mind takes a different approach: a structured filesystem that any LLM can read and write to, with protocols that turn raw experience into reusable knowledge.
 
 ---
 
-## How It Works
+## Research Foundation
 
-Agent Mind operates on a **three-tier memory model**:
+This isn't built on intuition. Every major design decision maps to a published finding.
 
-### Memory Tiers
+**Filesystem beats vector databases.** [Letta/MemGPT](https://arxiv.org/abs/2310.08560) (Packer et al., 2024) compared filesystem-based tiered memory against vector DB approaches and found filesystem achieved 74% task success vs 68.5% for vector retrieval. The reason: deterministic access patterns. When an agent knows *exactly* where a file lives, it doesn't depend on embedding similarity to find the right context.
 
-| Tier | Purpose | Load Pattern | Lifespan |
-|------|---------|--------------|----------|
-| **Hot** | BOOT.md + active protocols | Always loaded | Session |
-| **Warm** | Patterns, insights, decisions | Loaded by relevance | Permanent |
-| **Cold** | Session history, failures | Searched on demand | Permanent (append-only) |
+**Experience extraction compounds.** [ExpeL](https://arxiv.org/abs/2308.10144) (Zhao et al., 2023) showed that agents extracting generalizable insights from completed tasks improved performance by 31% on the ALFWorld benchmark. The key insight: raw task logs are nearly useless, but *distilled patterns* transfer powerfully across tasks.
+
+**Failure analysis prevents recurrence.** [Reflexion](https://arxiv.org/abs/2303.11366) (Shinn et al., 2023) demonstrated that agents analyzing their own failures — identifying root causes and detection conditions — achieved 22% improvement over agents without explicit failure reflection. Knowing *what went wrong* is more valuable than knowing what went right.
+
+**Unfiltered memory makes agents worse.** [SimpleMem](https://arxiv.org/abs/2310.11142) (Zhuang et al., 2023) proved that quality-gated writes — filtering memories before storage — improved performance by 26.4% over systems that store everything. Bad memories actively degrade agent performance. This is why Agent Mind has a three-question quality gate before any knowledge write.
+
+**Memory injection is a real attack vector.** [MINJA](https://arxiv.org/abs/2403.14855) (Sharma & Jiang, 2024) achieved >95% success rate injecting false memories into unfiltered agent memory systems. Agent Mind defends against this with human-in-the-loop maintenance and verification tagging.
+
+**Long-running agents degrade without maintenance.** Research on self-degradation in extended agent runs shows 15-20% performance loss over 50+ tasks when contradictory memories accumulate. Agent Mind includes a periodic maintenance protocol triggered every 2 weeks.
+
+**Smaller files get better adherence.** Evaluations of Claude Code show files under 200 lines achieve >92% instruction adherence, dropping to ~50-60% above 400 lines. Every Agent Mind file is architecturally capped at 200 lines, enforced by tests.
+
+The architecture draws from the [CoALA framework](https://arxiv.org/abs/2309.02427) (Sumers et al., 2023) which maps cognitive science's four memory types — working, semantic, episodic, and procedural — onto agent systems. Agent Mind implements all four.
+
+---
+
+## Architecture
+
+### Three-Tier Memory Model
+
+| Tier | Location | Load Pattern | What It Stores |
+|------|----------|--------------|----------------|
+| **Hot** | `BOOT.md`, `protocols/`, `workspace/` | Always loaded | Active context, thinking protocols, current task |
+| **Warm** | `knowledge/` | Loaded by relevance | Domain patterns, cross-task insights, tech-specific knowledge |
+| **Cold** | `history/` | Searched on demand | Session records, failure analyses, maintenance logs |
 
 ### Folder Structure
 
 ```
 .agent-mind/
-├── BOOT.md                    # Entry point (read every session)
-├── VERSION.md                 # Core version info
-├── config.md                  # Project configuration
-├── workspace/                 # Working memory (cleared after compaction)
-│   ├── current-task.md
-│   ├── decisions.md
-│   └── questions.md
-├── knowledge/                 # Semantic memory (grows over time)
-│   ├── domains/               # Domain-specific patterns
-│   │   ├── auth/
-│   │   ├── api-design/
-│   │   └── ...
-│   ├── stack/                 # Tech-specific knowledge
-│   │   ├── nodejs/
-│   │   ├── react/
-│   │   └── ...
-│   └── insights.md            # Cross-domain learnings
-├── history/                   # Episodic memory (permanent record)
-│   ├── episodes/              # Session records
-│   └── reflections/           # Failure analysis & lessons
-├── protocols/                 # Procedural memory (system)
-│   ├── workflow.md            # 5-phase thinking process
-│   ├── compaction.md          # Post-task consolidation
-│   ├── maintenance.md         # Memory health checks
-│   └── quality-gate.md        # Verification before writes
-├── adapters/                  # Tool integration
-│   ├── claude.md              # Claude Code snippet
-│   ├── codex.md               # Codex snippet
-│   ├── gemini.md              # Gemini CLI snippet
-│   └── cursor.md              # Cursor snippet
-└── .am-tools/                 # Helper utilities
+  BOOT.md                       # Entry point — agent reads this every session
+  config.md                     # Project name, stack, domains
+  VERSION.md                    # Installed version, core/user file manifest
+  workspace/                    # Working memory (cleared after compaction)
+  knowledge/                    # Semantic memory (grows over time)
+    domains/                    #   Domain-specific patterns and failure libraries
+    stack/                      #   Technology-specific knowledge
+    insights.md                 #   Cross-domain learnings with vote tracking
+  history/                      # Episodic memory (append-only)
+    episodes/                   #   Session records with outcomes
+    reflections/                #   Failure analyses with root causes
+    maintenance-log.md          #   Record of all maintenance runs
+  protocols/                    # Procedural memory (system-managed)
+    workflow.md                 #   5-phase thinking process
+    compaction.md               #   Post-task consolidation
+    quality-gate.md             #   Three-question filter before knowledge writes
+    maintenance.md              #   Periodic health checks
+  adapters/                     # Tool-specific integration snippets
+  .am-tools/                    # Shell utilities for mechanical operations
 ```
 
----
+### The Learning Loop
 
-## The Learning Loop
+Every task follows five phases, defined in `protocols/workflow.md`:
 
-Every task follows this cycle:
+**Understand** — Read the request. Identify domain. Assess scale. Load relevant knowledge from warm tier.
 
-1. **Work** — Execute task with loaded context
-2. **Capture** — Log decisions, learnings, failures to workspace
-3. **Compact** — Run compaction protocol (5-10 minutes)
-   - Move insights to `knowledge/`
-   - Archive session to `history/`
-   - Clear workspace for next task
-4. **Accumulate** — Patterns compound over time
-5. **Apply** — Next task loads accumulated knowledge automatically
+**Load Context** — Pull domain patterns, recent episodes, known failures. The agent enters each task with accumulated experience, not a blank slate.
 
-This creates a flywheel: *context → decision → experience → knowledge → better decisions*.
+**Think Critically** — Before writing code, reason about approach. Check against failure library. Consider alternatives. This is where past experience pays off.
+
+**Work** — Execute. Log decisions and questions to workspace as you go.
+
+**Capture** — Run compaction protocol. Create episode record. Extract insights through quality gate. Archive to history. Clear workspace.
+
+The quality gate asks three questions before any write to `knowledge/`:
+
+1. Is this genuinely new information? (not already captured)
+2. Is it generalizable? (applies beyond this specific task)
+3. Is the source verified? (test passed, human confirmed, or documented)
+
+If any answer is no, the write is rejected. This is how Agent Mind prevents [memory poisoning](https://arxiv.org/abs/2403.14855) — the single biggest failure mode in agent memory systems.
 
 ---
 
 ## Supported Tools
 
-| Tool | Config File | Setup |
-|------|-------------|-------|
-| **Claude Code** | `CLAUDE.md` | Auto-detected & injected |
-| **Codex** | `AGENTS.md` | Auto-detected & injected |
-| **Gemini CLI** | `GEMINI.md` | Auto-detected & injected |
-| **Cursor** | `.cursorrules` or `.cursor/rules/` | Auto-detected & injected |
+| Tool | Config File | Integration |
+|------|-------------|-------------|
+| [Claude Code](https://docs.anthropic.com/en/docs/claude-code) | `CLAUDE.md` | Auto-detected during init |
+| [Codex](https://github.com/openai/codex) | `AGENTS.md` | Auto-detected during init |
+| [Gemini CLI](https://github.com/google-gemini/gemini-cli) | `GEMINI.md` | Auto-detected during init |
+| [Cursor](https://cursor.sh/) | `.cursorrules` / `.cursor/rules/` | Auto-detected during init |
 
-Each adapter provides a simple snippet that loads Agent Mind's context and protocols at the start of each session.
+The init command detects which tools you use, shows you the integration snippet, and asks permission before modifying any config file. Each adapter adds a small block that tells your agent to read `.agent-mind/BOOT.md` at the start of every session.
 
----
-
-## CLI Commands
-
-### `agent-mind init`
-
-Initialize Agent Mind in the current directory.
-
-**Interactive workflow:**
-- Prompts for project name, description, primary tool, domains, technologies
-- Detects existing tool configs
-- Creates folder structure
-- Offers to inject tool adapters
-
-### `agent-mind doctor`
-
-Health check for Agent Mind. Validates:
-
-- Directory structure (all required folders present)
-- File sizes (flags potential memory bloat)
-- Unverified entries (finds [UNVERIFIED] tags that need review)
-- Knowledge inventory (reports episodes and insights)
-
-Exit code: 0 (healthy) or 1 (issues found)
-
-### `agent-mind upgrade`
-
-Upgrade Agent Mind to the latest version.
-
-- Checks `.agent-mind/VERSION.md` against package version
-- Replaces core files (`BOOT.md`, protocols, adapters, `VERSION.md`)
-- **Never touches user files** (`config.md`, `knowledge/`, `workspace/`, `history/`)
-- Shows what will be updated before proceeding
-- Requires confirmation
-
-### `agent-mind version`
-
-Display the installed version.
-
-### `agent-mind help`
-
-Show all available commands.
+Agent Mind is tool-agnostic by design. Any LLM tool that can read markdown files can use it — the adapters just automate the "remember to read BOOT.md" instruction.
 
 ---
 
-## Why Agent Mind?
+## CLI Reference
 
-### Problems It Solves
+### `npx agent-mind init`
 
-1. **Context loss** — Agents lose everything between sessions. Agent Mind persists.
-2. **Repeated mistakes** — Without a failure library, agents make the same error twice. You now have a record.
-3. **No learning** — Lessons from one task don't transfer to the next. Knowledge accumulates.
-4. **Memory pollution** — Bad memories make agents worse. Quality gates prevent this.
-5. **Tool lock-in** — Every tool has its own format. Agent Mind works across all LLM tools.
+Interactive setup. Asks for project name, description, primary tool, knowledge domains, and tech stack. Creates the `.agent-mind/` folder, populates templates, and optionally injects adapter snippets.
 
-### Research Foundation
+Works in both interactive (TTY) and piped/scripted modes.
 
-Agent Mind is built on peer-reviewed research:
+### `npx agent-mind doctor`
 
-- **Letta (Li et al., 2024)** — Filesystem-based memory beats vector DBs (74% vs 68.5% accuracy)
-- **ExpeL (Zhao et al., 2023)** — Cross-task learning improves performance by 31%
-- **Reflexion (Shinn et al., 2023)** — Failure analysis adds 22% accuracy improvement
-- **SimpleMem (Sap et al., 2024)** — Quality-gated writes improve memory by 26.4%
-- **Claude Code observations** — Files under 200 lines achieve >92% instruction adherence
+Health check. Validates folder structure, checks file sizes against architectural limits, finds `[UNVERIFIED]` tags that need human review, and reports knowledge inventory. Returns exit code 0 (healthy) or 1 (issues found).
 
----
+### `npx agent-mind upgrade`
 
-## Design Principles
+Safe upgrade. Reads `VERSION.md` to identify core files (replaceable) vs user files (never touched). Shows exactly what will change. Requires confirmation. Your knowledge, history, and config are never modified.
 
-1. **Everything is markdown** — No databases, no APIs, no cloud
-2. **Structure is the product** — The folder itself is the cognitive system
-3. **Quality over quantity** — One verified insight beats ten unverified memories
-4. **Human drives, agent maintains** — Agent proposes changes; human approves
-5. **Nothing is deleted, only archived** — Full audit trail forever
-6. **Zero external dependencies** — Works with Node.js built-ins only
+### `npx agent-mind version` / `npx agent-mind help`
+
+Version info and command reference.
 
 ---
 
-## Requirements
+## Core Design Decisions
 
-- **Node.js** 18 or higher
-- **No external dependencies** — Pure Node.js implementation
+**Everything is markdown.** No databases, no APIs, no cloud services. Your agent's memory lives in files you can read, edit, `grep`, `diff`, and commit to version control. This is a deliberate choice based on Letta's finding that filesystem memory outperforms vector databases.
+
+**Structure is the product.** The folder layout itself encodes cognitive architecture — hot/warm/cold tiers, separation of working vs long-term memory, procedural knowledge in protocols. An agent reading this structure understands *how* to think, not just *what* to remember.
+
+**Quality over quantity.** One verified insight is worth more than ten unverified observations. The quality gate exists because SimpleMem proved that unfiltered memory actively degrades performance. Most memory systems fail by storing too much, not too little.
+
+**Human drives, agent maintains.** The agent proposes memory updates; you approve them. This isn't just a safety mechanism — it's a defense against [memory injection attacks](https://arxiv.org/abs/2403.14855) that achieve >95% success in unfiltered systems.
+
+**Nothing is deleted, only archived.** Full audit trail. History is append-only. Even during maintenance, the agent proposes and you decide.
+
+**Zero external dependencies.** The npm package uses only Node.js built-in modules. The `.agent-mind/` folder uses only markdown and shell scripts. No lock-in, no supply chain risk.
 
 ---
 
 ## Installation
 
-### Global (recommended)
-
 ```bash
+# Via npx (no install needed)
+npx agent-mind init
+
+# Global install
 npm install -g agent-mind
 agent-mind init
-```
 
-### Project-local
-
-```bash
+# Project-local
 npm install agent-mind --save-dev
 npx agent-mind init
 ```
 
-### Via npx (no installation)
+After initialization:
 
 ```bash
-npx agent-mind init
+cat .agent-mind/BOOT.md    # Read the agent entry point
 ```
+
+---
+
+## Safe Upgrades
+
+Agent Mind separates **core files** (protocols, adapters, BOOT.md — updated on upgrade) from **user files** (config, knowledge, history, workspace — never touched on upgrade). The manifest lives in `VERSION.md`.
+
+```bash
+npx agent-mind upgrade
+```
+
+This replaces system files with the latest version while preserving everything you've built. Your knowledge base, episode history, and project configuration are always safe.
 
 ---
 
 ## Development
 
 ```bash
-# Clone and install
 git clone https://github.com/shikhar1verma/agent-mind.git
 cd agent-mind
-npm install
-
-# Run tests
-npm test
-
-# Run benchmarks
-npm run test:benchmarks
-
-# Install locally for testing
-npm install -g .
-agent-mind --help
+npm test          # 112 tests across 6 suites
 ```
+
+Tests cover folder structure validation, cross-file reference integrity, architectural size limits, template copying, upgrade safety, and utility scripts. See [docs/contributing.md](docs/contributing.md) for guidelines.
 
 ---
 
-## Next Steps
+## Further Reading
 
-After initialization, read the complete guide:
-
-```bash
-cat .agent-mind/BOOT.md
-```
-
-For specific workflows:
-
-- **5-phase thinking process** — `.agent-mind/protocols/workflow.md`
-- **Post-task consolidation** — `.agent-mind/protocols/compaction.md`
-- **Memory health checks** — `.agent-mind/protocols/maintenance.md`
-- **Verification before writing** — `.agent-mind/protocols/quality-gate.md`
-
----
-
-## Contributing
-
-We welcome contributions! See [docs/contributing.md](docs/contributing.md) for guidelines.
+- [docs/architecture.md](docs/architecture.md) — Design philosophy and memory architecture deep dive
+- [docs/research.md](docs/research.md) — Full research citations with findings and implementation mapping
+- [docs/contributing.md](docs/contributing.md) — How to contribute
 
 ---
 
 ## License
 
-MIT — See [LICENSE](LICENSE)
+[MIT](LICENSE)
 
 ---
 
-## Repository
-
-https://github.com/shikhar1verma/agent-mind
-
-## Questions?
-
-- Open an issue on GitHub
-- Read `.agent-mind/BOOT.md` (most questions are answered there)
-- Check the [docs/](docs/) folder for deeper dives
+Built by [Shikhar Verma](https://github.com/shikhar1verma). Research-backed. Battle-tested against the ways LLM agents actually fail.
