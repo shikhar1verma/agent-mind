@@ -29,7 +29,7 @@ Check what you already know that's relevant.
 
 Don't load everything. Load what's relevant.
 
-**Quick tasks:** Scan mentally. Note what you found (or that the domain is new).
+**Quick tasks:** List the directories. Read matching files. Note what you found (or that the domain is new). This is a file read, not a mental exercise.
 **Medium/large tasks:** Write what you loaded and why to `workspace/context.md`. This audit trail matters for maintenance.
 
 ## Phase 3: Think Critically
