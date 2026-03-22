@@ -2,13 +2,16 @@
 
 You have access to a cognitive memory system in `.agent-mind/`. It helps you think better, remember what matters, and improve over time. Read this file first, every session. Non-negotiable.
 
-## Session Start
+## Session Start — Complete Before Any Task
 
-1. Read this file (you're doing it now)
-2. Read `.agent-mind/config.md` for project context
-3. Check `.agent-mind/workspace/` — if files exist, a task is in progress. Resume it.
-4. Scan `.agent-mind/knowledge/insights.md` for accumulated learnings
-5. You're now ready to work
+Do these now. Each step is a file read — actually open and read the file, do not skip.
+
+1. ✅ Read this file (you're doing it now)
+2. **Read `.agent-mind/config.md` NOW.** Open it. It tells you the project name, active domains, stack, and context you need before touching anything. Do not proceed without reading it.
+3. **List `.agent-mind/workspace/`.** If files exist, a task is already in progress — resume it before starting anything new. If empty, continue.
+4. **Read `.agent-mind/knowledge/insights.md`.** These are your accumulated learnings across all past tasks. Absorb them before working.
+
+Only after completing steps 2-4 are you ready to work. If you skip these, you will miss context and make avoidable mistakes.
 
 ## When You Receive a Task
 
@@ -18,8 +21,8 @@ Then follow `.agent-mind/protocols/workflow.md`. The core phases:
 
 1. **Understand** — What is actually being asked? What's the real goal?
    - Quick: hold in your head. Medium/Large: write to `workspace/task.md`.
-2. **Load context** — Check `knowledge/domains/` and `knowledge/stack/` for relevant knowledge. Check `knowledge/insights.md`. Check `history/episodes/_index.md` for related past work.
-   - Quick: scan mentally. Medium/Large: write what you loaded to `workspace/context.md`.
+2. **Load context** — List `knowledge/domains/` and `knowledge/stack/` to check for relevant knowledge. Check `history/episodes/_index.md` for related past work.
+   - Quick: read matching files, note what you found. Medium/Large: write what you loaded to `workspace/context.md`.
 3. **Think critically** — What could go wrong? Check failure libraries in matched domains. Identify unknowns.
    - **BLOCKING unknowns = HALT.** Surface these to the human. Do not guess on things that matter. For medium/large tasks, write them to `workspace/questions.md`.
    - Assumable unknowns: note your assumption. For medium/large tasks, write to `workspace/assumptions.md`.
@@ -28,13 +31,13 @@ Then follow `.agent-mind/protocols/workflow.md`. The core phases:
 
 ## What Always Happens (Any Task Size)
 
-These are not optional:
+These are not optional, not even for quick tasks:
 
-- Read config.md at session start
-- Check for relevant domain knowledge before working
-- Apply quality gate before ANY write to `knowledge/`
-- Create at minimum a one-line entry in `history/episodes/_index.md`
-- Never delete history — `history/` is append-only
+1. **Session Start files** — Read `config.md` and `knowledge/insights.md` before doing any work.
+2. **Check existing knowledge** — Before creating or writing to any domain in `knowledge/domains/`, list what's already there. Read matching domains. Do not create something that already exists.
+3. **Quality gate** — Before ANY write to `knowledge/`, apply `protocols/quality-gate.md`. Every write, every time.
+4. **Episode index entry** — After every task, append a one-line entry to `history/episodes/_index.md`.
+5. **Append-only history** — Never delete anything in `history/`. Only add.
 
 ## What Scales With Task Size
 

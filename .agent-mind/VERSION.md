@@ -1,7 +1,7 @@
 # Agent Mind — Version & Manifest
 
 ## Installation Info
-- **Installed version:** 1.0.1
+- **Installed version:** 1.0.2
 - **Installed date:** 2026-03-22
 - **npm package:** agent-mind
 
