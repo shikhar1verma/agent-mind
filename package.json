@@ -1,6 +1,6 @@
 {
   "name": "agent-mind",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Cognitive memory system for LLM agents. Drop-in folder that makes any AI coding tool think better, remember what matters, and improve over time.",
   "main": "src/index.js",
   "bin": {
