@@ -6,7 +6,26 @@ Backed by: ExpeL (cross-task learning, +31% on ALFWorld), Reflexion (failure ana
 
 ---
 
-## Step 1: Create Episode Summary
+## What Always Happens (Any Task Size)
+
+Regardless of whether the task took 5 minutes or 5 days:
+
+1. **Episode index entry** — Add a one-line entry to `history/episodes/_index.md`:
+   ```
+   YYYY-MM-DD | domain(s) | outcome | task-slug | One-line summary
+   ```
+
+2. **Quality gate on knowledge writes** — If you wrote ANYTHING to `knowledge/` during this task, verify each write passed through `protocols/quality-gate.md`. This is not optional. Bad memories are worse than no memories.
+
+3. **Clear workspace** — If you wrote to `workspace/` during the task, delete all workspace files. The valuable information is now in `history/` or `knowledge/`.
+
+For quick tasks (under 30 minutes), you can stop here. The index entry is your record.
+
+---
+
+## Full Compaction (Medium and Large Tasks)
+
+### Step 1: Create Episode Detail File
 
 Create a new file: `history/episodes/YYYY-MM/[task-slug].md`
 
@@ -21,14 +40,7 @@ Use this format:
 **Assumptions made:** [brief list, or "none"]
 ```
 
-Add a one-line entry to `history/episodes/_index.md`:
-```
-YYYY-MM-DD | domain(s) | outcome | task-slug | One-line summary
-```
-
-**Every task gets an episode.** Even trivial ones get a one-liner in the index.
-
-## Step 2: Quality Gate
+### Step 2: Quality Gate
 
 Before writing ANYTHING to `knowledge/`, pass through `protocols/quality-gate.md`.
 
@@ -41,9 +53,9 @@ If yes to all three → proceed to Step 3.
 If uncertain → tag `[UNVERIFIED]` and proceed.
 If no → stop here. The episode summary is enough.
 
-## Step 3: Extract Learnings
+### Step 3: Extract Learnings
 
-### Path A: Task Completed Successfully
+#### Path A: Task Completed Successfully
 
 **Check insights:** Does this task confirm an existing insight in `knowledge/insights.md`?
 - Yes → UPVOTE that insight (increment vote count)
@@ -56,7 +68,7 @@ If no → stop here. The episode summary is enough.
 **Check for promotion:** Any insight in insights.md with votes > 5?
 - Yes → move it to the relevant domain's patterns.md (it's proven enough)
 
-### Path B: Task Failed
+#### Path B: Task Failed
 
 **Write reflection** to `history/reflections/YYYY-MM-DD-[slug].md`:
 ```
@@ -77,25 +89,11 @@ YYYY-MM-DD | domain | slug | One-line: what went wrong
 **Update failure library:** Check `knowledge/domains/[domain]/failures/`:
 - New failure pattern → create entry file, add to `_index.md`
 - Known failure that wasn't caught → update its detection conditions
-- Failure in `_index.md` format: `date | slug | trigger condition | one-line summary`
 
 **Check insights:**
 - Should have prevented this? → UPVOTE the relevant insight
 - New insight from this failure? → ADD with `votes: 1`
 
-### Path C: Task Abandoned
+#### Path C: Task Abandoned
 
-Just log the episode (Step 1) with outcome "abandoned" and a note on why. No knowledge extraction. Abandoned tasks don't teach reliably — the outcome is unknown.
-
-## Step 4: Clear Workspace
-
-After Steps 1-3 are complete:
-- All valuable information is now in `history/` or `knowledge/`
-- Delete all files from `workspace/`
-- Workspace is now clean for the next task
-
-## Scaling
-
-**Quick task:** Step 1 (1-line index entry only), Step 4. Skip Steps 2-3.
-**Normal task:** Full Steps 1-4.
-**Failed task:** Full Steps 1-4 with emphasis on Step 3 Path B.
+Just log the episode (always-do step 1) with outcome "abandoned" and a note on why. No knowledge extraction. Abandoned tasks don't teach reliably — the outcome is unknown.
